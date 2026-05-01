@@ -1,84 +1,80 @@
-# Realtime Object Detection on CPU with OpenCV  
 
-![OpenCV Object Detection](images/picture1.png)  
+# ESP32-CAM Real-Time Object Detection (CPU, OpenCV)
 
 
-## 📌 Overview  
 
-This project implements real-time object detection on a CPU using OpenCV. The goal is to detect objects efficiently without requiring a GPU, making it suitable for low-power devices, embedded systems, or general-purpose CPUs.  
+## 📌 Overview
 
-## 🚀 Features  
+This project enables real-time object detection using an ESP32-CAM as a wireless video source and OpenCV's DNN module for inference on a standard CPU (no GPU required). It is ideal for embedded, IoT, and low-power applications.
 
-- ✅ **Runs on CPU** – No dedicated GPU required.  
-- ✅ **Uses OpenCV DNN module** for deep learning-based object detection.  
-- ✅ **Supports multiple pre-trained models** (e.g., YOLO, SSD, MobileNet, Faster R-CNN).  
-- ✅ **Efficient inference speed** optimized for real-time performance.  
-- ✅ **Webcam & Video support** for live detection.  
-- ✅ **Custom model integration** for personalized object detection.  
+## 🚀 Features
 
-## 🛠️ Installation  
+- **ESP32-CAM integration**: Stream video from ESP32-CAM over Wi-Fi
+- **CPU-only inference**: No GPU required, runs on laptops/desktops
+- **OpenCV DNN**: Uses SSD MobileNet v3 (COCO dataset)
+- **Multiple connection methods**: Robust ESP32-CAM connection (stream, HTTP, snapshot)
+- **Webcam/video support**: Also works with local webcam or video files
+- **Easy video saving**: Save ESP32-CAM streams to disk
 
-### 1️⃣ Prerequisites  
-Ensure you have the following installed:  
+## 🛠️ Installation
 
-- Python 3.x  
-- OpenCV (`opencv-python` and `opencv-python-headless`)  
-- NumPy  
-- OpenCV DNN dependencies  
+### Prerequisites
 
-### 2️⃣ Install Dependencies  
-Run the following command to install the required packages:  
+- Python 3.x
+- OpenCV (`opencv-python`)
+- NumPy
+
+Install dependencies:
 
 ```bash
-pip install opencv-python opencv-python-headless numpy
+pip install opencv-python numpy
 ```
 
-## 🔍 Usage  
+## 📂 Project Structure
 
-### 1️⃣ Clone the Repository  
+- `main_esp32.py` — Main entry point for detection (choose ESP32/webcam/video)
+- `Detector_esp32.py` — Handles ESP32-CAM connection and object detection
+- `model_data/` — Contains model files:
+	- `ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt`
+	- `frozen_inference_graph.pb`
+	- `coco.names`
+- `Saving VideoToFolder/savingThevodeotoPC.py` — Save ESP32 stream to video file
+- `CameraWebServer/` — ESP32 Arduino firmware (see `FinalCameraWebServer.ino`)
+
+## 🔍 Usage
+
+### 1️⃣ Flash ESP32-CAM
+
+Upload the Arduino sketch in `CameraWebServer/FinalCameraWebServer/FinalCameraWebServer.ino` to your ESP32-CAM. Set your Wi-Fi SSID and password in the code.
+
+### 2️⃣ Run Detection (Python)
+
+By default, `main_esp32.py` will try to connect to the ESP32-CAM stream. You can also set `INPUT_SOURCE` to `webcam` or `video`.
+
 ```bash
-git https://github.com/sployal/Realtime_object_detection_on_CPU_with_OpenCV
-cd Realtime_object_detection_on_CPU_with_OpenCV
+python main_esp32.py
 ```
 
-### 2️⃣ Run Object Detection on a Webcam  
+### 3️⃣ Save ESP32 Video to File
+
 ```bash
-python detect.py --model yolov4 --video 0
-```
-> Replace `0` with a video file path if using a pre-recorded video.
-
-### 3️⃣ Run Object Detection on an Image  
-```bash
-python detect.py --model yolov4 --image test.jpg
+python Saving VideoToFolder/savingThevodeotoPC.py
 ```
 
-## 📜 Supported Models  
+## ⚙️ Configuration
 
-| Model        | Speed | Accuracy | Best Use Case |
-|-------------|------|----------|--------------|
-| YOLOv3/v4   | ⚡ Fast  | 🔵 High | General Object Detection |
-| SSD         | ⚡⚡ Faster  | 🟡 Medium | Lightweight Detection |
-| MobileNet   | ⚡⚡⚡ Fastest  | 🟢 Low | Edge Devices |
-| Faster R-CNN | 🛑 Slow | 🔴 Very High | High Accuracy Tasks |
+- Edit `main_esp32.py` to set your ESP32-CAM IP address if needed.
+- Place your test videos in `test_videos/`.
 
-## 🛠️ Custom Model Integration  
-To use a custom model, follow these steps:  
+## 📝 Notes
 
-1. Convert your trained model to OpenCV's `.pb`, `.onnx`, or `.caffemodel` format.  
-2. Place the model in the `models/` directory.  
-3. Modify `detect.py` to load the new model.  
+- Make sure your PC and ESP32-CAM are on the same Wi-Fi network.
+- If the stream fails, try opening the ESP32-CAM stream URL in your browser to debug.
 
+## 🤝 Contributing
 
-## 📌 TODO  
+Pull requests and suggestions are welcome!
 
-- [ ] Add multi-threaded processing for speed optimization  
-- [ ] Improve object tracking for better accuracy  
-- [ ] Deploy on Raspberry Pi for edge computing  
+## 📜 License
 
-## 🤝 Contributing  
-
-Feel free to open an issue or submit a pull request if you find a bug or have an idea for improvement!  
-
-## 📜 License  
-
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.  
+This project is licensed under the **MIT License**.
