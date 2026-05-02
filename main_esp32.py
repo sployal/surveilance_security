@@ -13,7 +13,7 @@ def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
     if INPUT_SOURCE == "esp32":
-        video_path = "http://10.171.25.8"
+        video_path = "http://192.168.43.8"
         print("[INFO] Mode: ESP32-CAM Security Feed")
 
     elif INPUT_SOURCE == "webcam":
