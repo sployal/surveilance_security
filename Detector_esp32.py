@@ -428,15 +428,18 @@ def draw_servo_hud(image, angle):
 #  DETECTOR  (main class)
 # ═════════════════════════════════════════════════════════════════════════════
 class Detector:
-
-    ESP32_BASE = "http://192.168.43.8"
+    # ── ESP32_BASE is intentionally NOT defined here. ─────────────────────────
+    # The base URL is derived from self.videoPath, which is set by main.py.
+    # This makes main.py the single source of truth for the ESP32 IP address.
 
     def __init__(self, videoPath):
         self.videoPath   = videoPath
         self.alert_mgr   = AlertManager(EMAIL_CONFIG)
         self.tracker     = PersonTracker(smooth=5)
         self.activity    = SuspiciousActivityDetector()
-        self.servo       = ServoTracker(self.ESP32_BASE)
+        # ServoTracker is NOT created here — it needs the base URL which only
+        # makes sense for ESP32 sources. It is created inside _run_esp32().
+        self.servo       = None
         self._last_angle = None   # for the HUD display
 
     def onvideo(self):
@@ -451,11 +454,15 @@ class Detector:
         print("  Connecting to ESP32-CAM Security Feed...")
         print("="*60 + "\n")
 
-        poller = SnapshotPoller(self.ESP32_BASE, timeout=5)
+        # self.videoPath IS the base URL — derived directly from main.py
+        base_url     = self.videoPath
+        self.servo   = ServoTracker(base_url)
+
+        poller = SnapshotPoller(base_url, timeout=5)
         if poller.connect():
             self._loop_generic(poller, "Security Feed [snapshot]")
         else:
-            print("\n[ERROR] Snapshot polling failed — check ESP32_BASE URL.")
+            print("\n[ERROR] Snapshot polling failed — check the ESP32 URL in main.py.")
 
     # ── Core per-frame logic ──────────────────────────────────────────────────
     def _process_frame(self, frame, pose):
@@ -477,9 +484,10 @@ class Detector:
             alerts = self.activity.check(lm, box)
 
             # ── Servo tracking ────────────────────────────────────────────────
-            angle = self.servo.update(box, w)
-            if angle is not None:
-                self._last_angle = angle
+            if self.servo is not None:
+                angle = self.servo.update(box, w)
+                if angle is not None:
+                    self._last_angle = angle
             # ─────────────────────────────────────────────────────────────────
 
             box_color = (0, 0, 255) if alerts else (0, 255, 255)
@@ -489,7 +497,7 @@ class Detector:
             draw_pose_overlay(image, results, w, h)
         else:
             # Person lost — servo returns to centre
-            if self._last_angle is not None:
+            if self._last_angle is not None and self.servo is not None:
                 self.servo.centre()
                 self._last_angle = None
 
@@ -533,7 +541,8 @@ class Detector:
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
 
-        self.servo.centre()
+        if self.servo is not None:
+            self.servo.centre()
         source.release()
         cv2.destroyAllWindows()
 
@@ -567,6 +576,6 @@ class Detector:
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
 
-        self.servo.centre()
+        # No servo.centre() here — servo is None for local/webcam sources
         cap.release()
         cv2.destroyAllWindows()

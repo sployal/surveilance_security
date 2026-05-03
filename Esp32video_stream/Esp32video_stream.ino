@@ -4,8 +4,8 @@
 
 #include "board_config.h"
 
-const char *ssid = "Samsung";
-const char *password = "Muren2569105gtk";
+const char *ssid = "wi-fi network name";
+const char *password = "wi-fi password";
 
 // ── Servo ──────────────────────────────────────────────────────────────────
 // Declared as a plain global so app_httpd.cpp can reach it via:
